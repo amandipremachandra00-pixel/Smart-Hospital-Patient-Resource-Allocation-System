@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include<string.h>
 #define MAX 4
 #define SPECIALIST 4
 #define WARDS 4
-#define MAX_PATIENTS 1000000
+#define MAX_PATIENTS 100
 void printSpecialistData(int ids[4][4],char specialist[4][20],float baseFee[],float consultantTime[],int patientCap[]);
 void printWardData(int wids[4][20],char wards[4][25],float bedRate[],int totalBed[]);
 void bedTracker( int bedOccupancy[4][20]);
@@ -126,17 +127,20 @@ else{
 }
 void patientregister(int i){
 int choice;
-char name[MAX_PATIENTS];
+char name[MAX_PATIENTS][50];
 int age[MAX_PATIENTS];
 int patientlevel[MAX_PATIENTS];
 int specialid[MAX_PATIENTS];
 int ward[MAX_PATIENTS];
 int days[MAX_PATIENTS];
-printf("------------------------------------------------------------------------------------------------------------------");
+printf("\n------------------------------------------------------------------------------------------------------------------");
 printf("\nPatient Details:");
 printf("\n-----------------------------------------------------------------------------------------------------------------");
+
 printf("\nEnter Patient Name ");
-scanf("%50s",name[i]);
+
+fgets(name[i],sizeof(name[i]),stdin);
+name[i][strcspn(name[i],"\n")]='\0';
 do{
 printf("\nEnter Patient Age");
 scanf("%d",&age[i]);
@@ -160,7 +164,7 @@ printf("\n----------------------------------------------------------------------
 printf("\nEnter the Specialty ID");
 do{
 printf("\n1=Genaral Practice OPD\n2=Paediatrics\n3=Cardiology\n4=Neurology");
-scanf("%d",&specialid[i]);
+scanf("%10d",&specialid[i]);
 if(specialid[i]<1 || specialid[i]>4){
     printf("Invalid Speciality ID");
 }
