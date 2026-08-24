@@ -8,7 +8,16 @@
 void printSpecialistData(int ids[4][4],char specialist[4][20],float baseFee[],float consultantTime[],int patientCap[]);
 void printWardData(int wids[4][20],char wards[4][25],float bedRate[],int totalBed[]);
 void bedTracker( int bedOccupancy[4][20]);
-void patientregister(int i);
+void patientregister(int i,
+                     char name[][50],
+                     int age[],
+                     int patientlevel[],
+                     int specialid[],
+                     int ward[],
+                     int days[]);
+float waitingtimecalculate(int specialid[4],int specialtyQueue[4],int i);
+float emergencySurcharge(int patientlevel[MAX_PATIENTS],int  specialid[SPECIALIST],float baseFee[SPECIALIST],int i);
+float wardstayCost(float bedRate[WARDS],int days[MAX_PATIENTS],int ward[MAX_PATIENTS],int i);
 
 int main()
 
@@ -51,16 +60,24 @@ int totalBed[WARDS]={20,
                     05};
 int i=0;
 int bedOccupancy[4][20];
-char name[MAX_PATIENTS];
+char name[MAX_PATIENTS][50];
 int age[MAX_PATIENTS];
 int patientlevel[MAX_PATIENTS];
 int specialid[MAX_PATIENTS];
 int ward[MAX_PATIENTS];
 int days[MAX_PATIENTS];
+int specialtyQueue[4]={0,0,0,0};
 printSpecialistData(ids,specialist,baseFee,consultantTime, patientCap);
 printWardData(wids,wards,bedRate,totalBed);
 bedTracker(bedOccupancy);
-patientregister(i);
+patientregister(i, name, age, patientlevel, specialid, ward, days);
+float waitingTime = waitingtimecalculate(specialid, specialtyQueue,i);
+printf("\n Patient Estimated Waiting Time: %.2f minutes\n", waitingTime);
+float surchargeFee=emergencySurcharge(patientlevel,specialid,baseFee,i);
+printf("\n SurchargeFee:%.2frupees\n",surchargeFee);
+float wardstaycost=wardstayCost(bedRate,days,ward,i);
+printf("\n Wardstaycost:%.2frupees\n",wardstaycost);
+
 return 0;
 
 
@@ -125,14 +142,15 @@ else{
 }
 }
 }
-void patientregister(int i){
+void patientregister(int i,
+                     char name[][50],
+                     int age[],
+                     int patientlevel[],
+                     int specialid[],
+                     int ward[],
+                     int days[]){
 int choice;
-char name[MAX_PATIENTS][50];
-int age[MAX_PATIENTS];
-int patientlevel[MAX_PATIENTS];
-int specialid[MAX_PATIENTS];
-int ward[MAX_PATIENTS];
-int days[MAX_PATIENTS];
+
 printf("\n------------------------------------------------------------------------------------------------------------------");
 printf("\nPatient Details:");
 printf("\n-----------------------------------------------------------------------------------------------------------------");
@@ -195,10 +213,39 @@ else{
 }
 while(choice!=0&&choice!=1);
 
+}
 
 
 
 
+float waitingtimecalculate(int specialid[4],int specialtyQueue[4],int i){
+int consultantTime[4]={15,20,30,30};
+int index=specialid[i]-1;
+float wait;
+wait=specialtyQueue[index]*consultantTime[index];
+specialtyQueue[index]++;
+return wait;}
+float emergencySurcharge(int patientlevel[MAX_PATIENTS],int specialid[SPECIALIST],float baseFee[SPECIALIST],int i){
+float surchargeFee=0;
+int index=specialid[i]-1;
+if (patientlevel[i]==0){
+    surchargeFee=0.00;}
+    else if(patientlevel[i]==2){
+    surchargeFee=0.20*baseFee[index];}
+    else if(patientlevel[i]==3){
+    surchargeFee=0.50*baseFee[index];}
+return surchargeFee;
+
+}
+float wardstayCost(float bedRate[WARDS],int days[MAX_PATIENTS],int ward[MAX_PATIENTS],int i){
+float wardcost=0;
+int index=ward[i]-1;
+if(days[i]==0){
+    wardcost=0.00;}
+else{
+    wardcost=days[index]*bedRate[index];
+}
+return wardcost;
 }
 
 
