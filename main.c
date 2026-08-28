@@ -18,6 +18,8 @@ void patientregister(int i,
 float waitingtimecalculate(int specialid[4],int specialtyQueue[4],int i);
 float emergencySurcharge(int patientlevel[MAX_PATIENTS],int  specialid[SPECIALIST],float baseFee[SPECIALIST],int i);
 float wardstayCost(float bedRate[WARDS],int days[MAX_PATIENTS],int ward[MAX_PATIENTS],int i);
+float grossBillTotal(int specialid[MAX_PATIENTS],float baseFee[SPECIALIST],float surchargeFee[],float wardCost[],int i);
+float calculateDiscount(int age[MAX_PATIENTS],float grossTotalBill[MAX_PATIENTS],int i);
 
 int main()
 
@@ -66,6 +68,11 @@ int patientlevel[MAX_PATIENTS];
 int specialid[MAX_PATIENTS];
 int ward[MAX_PATIENTS];
 int days[MAX_PATIENTS];
+float surchargeFee[MAX_PATIENTS];
+float wardcost[MAX_PATIENTS];
+float grossTotalBill[MAX_PATIENTS];
+float discount[MAX_PATIENTS];
+
 int specialtyQueue[4]={0,0,0,0};
 printSpecialistData(ids,specialist,baseFee,consultantTime, patientCap);
 printWardData(wids,wards,bedRate,totalBed);
@@ -73,10 +80,11 @@ bedTracker(bedOccupancy);
 patientregister(i, name, age, patientlevel, specialid, ward, days);
 float waitingTime = waitingtimecalculate(specialid, specialtyQueue,i);
 printf("\n Patient Estimated Waiting Time: %.2f minutes\n", waitingTime);
-float surchargeFee=emergencySurcharge(patientlevel,specialid,baseFee,i);
-printf("\n SurchargeFee:%.2frupees\n",surchargeFee);
-float wardstaycost=wardstayCost(bedRate,days,ward,i);
-printf("\n Wardstaycost:%.2frupees\n",wardstaycost);
+printf("\n SurchargeFee:%.2frupees\n",emergencySurcharge(patientlevel,specialid,baseFee,i));
+printf("\n Wardstaycost:%.2frupees\n",wardstayCost(bedRate,days,ward,i));
+grossBillTotal(specialid,baseFee, surchargeFee, wardcost, i);
+printf("\n grossTotalBill:%.2frupees\n",grossTotalBill[i]);
+printf("Discount:%.2frupees\n",calculateDiscount(age,grossTotalBill,i));
 
 return 0;
 
@@ -225,27 +233,39 @@ float wait;
 wait=specialtyQueue[index]*consultantTime[index];
 specialtyQueue[index]++;
 return wait;}
+
 float emergencySurcharge(int patientlevel[MAX_PATIENTS],int specialid[SPECIALIST],float baseFee[SPECIALIST],int i){
-float surchargeFee=0;
 int index=specialid[i]-1;
+float surchargeFee[MAX_PATIENTS];
 if (patientlevel[i]==0){
-    surchargeFee=0.00;}
+    surchargeFee[i]=0.00;}
     else if(patientlevel[i]==2){
-    surchargeFee=0.20*baseFee[index];}
+    surchargeFee[i]=0.20*baseFee[index];}
     else if(patientlevel[i]==3){
-    surchargeFee=0.50*baseFee[index];}
-return surchargeFee;
+    surchargeFee[i]=0.50*baseFee[index];}
+return surchargeFee[i];
 
 }
 float wardstayCost(float bedRate[WARDS],int days[MAX_PATIENTS],int ward[MAX_PATIENTS],int i){
-float wardcost=0;
-int index=ward[i]-1;
+float wardcost[MAX_PATIENTS];
 if(days[i]==0){
-    wardcost=0.00;}
+    wardcost[i]=0.00;}
 else{
-    wardcost=days[index]*bedRate[index];
+    wardcost[i]=days[i]*bedRate[ward[i]-1];
 }
-return wardcost;
+return wardcost[i];
 }
-
+float grossBillTotal(int specialid[MAX_PATIENTS],float baseFee[SPECIALIST],float surchargeFee[],float wardcost[],int i){
+float grossTotalBill[MAX_PATIENTS];
+grossTotalBill[i]=baseFee[specialid[i]-1]+surchargeFee[i]+wardcost[i];
+return grossTotalBill[i];
+}
+float calculateDiscount(int age[MAX_PATIENTS],float grossTotalBill[MAX_PATIENTS],int i){
+float discount[MAX_PATIENTS];
+if(age[i]<=5||age[i]>=65)
+    discount[i]=grossTotalBill[i]*0.15;
+else
+    discount[i]=0.00;
+return discount[i];
+}
 
