@@ -23,6 +23,7 @@ float calculateDiscount(int age[MAX_PATIENTS],float grossTotalBill[MAX_PATIENTS]
 float finalAmountBill(float grossTotalBill[MAX_PATIENTS],float discount[MAX_PATIENTS],int i);
 void bubbleSortPatients(int totalPatients,char name[][50],int age[],int patientlevel[],int ward[],int specialid[],int days[],float surchargeFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],float waitingtime[]);
 void printBill(char name[][50],int age[],int patientlevel[],int ward[],int specialid[],int days[],float waitingtime[],float surchargeFee[],float baseFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],int i);
+void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[]);
 
 int main()
 
@@ -79,34 +80,68 @@ float discount[MAX_PATIENTS];
 float finalAmount[MAX_PATIENTS];
 
 int specialtyQueue[4]={0,0,0,0};
-printSpecialistData(ids,specialist,baseFee,consultantTime, patientCap);
-printWardData(wids,wards,bedRate,totalBed);
-bedTracker(bedOccupancy);
-int totalPatients;
-printf("Enter the total Patients for register");
-scanf("%d",&totalPatients);
-getchar();
+int totalpatients;
+int choice;
+do{
+    printf("\n---------------------------------------------------------------------------------------------------------------");
+    printf("\n                   SMART HOSPITAL MANAGEMENT SYSTEM");
+    printf("\n---------------------------------------------------------------------------------------------------------------");
+    printf("\n1.Display Specialist Information");
+    printf("\n2.Display Ward Information");
+    printf("\n3.Bed Tracker");
+    printf("\n4.Register Patients");
+    printf("\n5.Display Patient Piority List");
+    printf("\n6.Display Patient Bills");
+    printf("\n7.Genarate Summary Reprts");
+    printf("\n8.Exit");
+    printf("\nEnter Your Choice");
+    scanf("%d",&choice);
+    switch(choice){
+    case 1:printf("\n");
+    printSpecialistData(ids,specialist,baseFee,consultantTime, patientCap);
+    break;
+    case 2:printf("\n");
+    printWardData(wids,wards,bedRate,totalBed);
+    break;
+    case 3:printf("\n");
+    bedTracker(bedOccupancy);
+    break;
+    case 4:printf("\n");
+    printf("Enter the total Patients for register");
+    scanf("%d",&totalpatients);
+    getchar();
 
-for(int i=0;i<totalPatients;i++){
-        printf("patient Registration");
-patientregister(i, name, age, patientlevel, specialid, ward, days);
-
-waitingtime[i] =
+      if(totalpatients <= 0 || totalpatients > MAX_PATIENTS){
+        printf("\nInvalid number Please check\n");
+        totalpatients = 0;
+        break;
+        }
+    for(int i=0;i<totalpatients;i++){
+    printf("patient Registration");
+    patientregister(i, name, age, patientlevel, specialid, ward, days);
+    waitingtime[i] =
     waitingtimecalculate(specialid, specialtyQueue, i);
-printf("\n Patient Estimated Waiting Time: %.2f minutes\n", waitingtime[i]);
-surchargeFee[i] = emergencySurcharge(patientlevel, specialid, baseFee, i);
+    printf("\n Patient Estimated Waiting Time: %.2f minutes\n", waitingtime[i]);
+    surchargeFee[i] = emergencySurcharge(patientlevel, specialid, baseFee, i);
 
-printf("Surcharge Fee: %.2f\n", surchargeFee[i]);
-wardcost[i]=wardstayCost(bedRate,days,ward,i);
-printf("\n Wardstaycost:%.2frupees\n",wardcost[i]);
-grossTotalBill[i]=grossBillTotal(specialid,baseFee, surchargeFee, wardcost, i);
-printf("\n grossTotalBill:%.2frupees\n",grossTotalBill[i]);
-discount[i]=calculateDiscount(age,grossTotalBill,i);
-printf("Discount:%.2frupees\n",discount[i]);
-finalAmount[i]=finalAmountBill(grossTotalBill,discount,i);
-printf("Final Bill:%.2frupees\n",finalAmount[i]);}
-bubbleSortPatients(totalPatients,name,age, patientlevel,ward,specialid,days, surchargeFee ,wardcost,grossTotalBill,discount, finalAmount,waitingtime);
-printf("\n***************************************************************************************************************\n");
+    printf("Surcharge Fee: %.2f\n", surchargeFee[i]);
+    wardcost[i]=wardstayCost(bedRate,days,ward,i);
+    printf("\n Wardstaycost:%.2frupees\n",wardcost[i]);
+    grossTotalBill[i]=grossBillTotal(specialid,baseFee, surchargeFee, wardcost, i);
+    printf("\n grossTotalBill:%.2frupees\n",grossTotalBill[i]);
+    discount[i]=calculateDiscount(age,grossTotalBill,i);
+    printf("Discount:%.2frupees\n",discount[i]);
+    finalAmount[i]=finalAmountBill(grossTotalBill,discount,i);
+    printf("Patients Succesfully Registerd");}
+    bubbleSortPatients(totalpatients,name,age, patientlevel,ward,specialid,days, surchargeFee ,wardcost,grossTotalBill,discount, finalAmount,waitingtime);
+    break;
+    case 5:
+        if(totalpatients==0){
+            printf("PAtients not registerd");
+
+        break;}
+        printf("\n");
+        printf("\n***************************************************************************************************************\n");
 printf("Patient Piority Order\n");
 printf("-----------------------------------------------------------------------------------------------------------------\n");
 printf("%-7s%-20s%-5s%-20s%-5s","Number",
@@ -115,7 +150,7 @@ printf("%-7s%-20s%-5s%-20s%-5s","Number",
                                 "Patient Level",
                                 "Specialty ID");
 printf("\n-----------------------------------------------------------------------------------------------------------------");
-for(int i=0;i<totalPatients;i++){
+for(int i=0;i<totalpatients;i++){
         printf("\n%-7d%-20s%-5d%-20d%-5d",i+1,
                                           name[i],
                                           age[i],
@@ -123,8 +158,11 @@ for(int i=0;i<totalPatients;i++){
                                           specialid[i]);
 
 }
-
-for(int i=0;i<totalPatients;i++){
+break;
+case 6:printf("\n");
+if(totalpatients==0)
+    printf("no patients Register");
+for(int i=0;i<totalpatients;i++){
 printBill(name,
           age,
           patientlevel,
@@ -140,19 +178,29 @@ printBill(name,
           finalAmount,
           i);
 }
-
-
-
-
-
-
-return 0;
-
-
-
-
-
+break;
+case 7:
+    summaryReports(totalpatients,name,patientlevel,finalAmount,ward,discount,totalBed);
+    break;
+case 8:
+    printf("\n-------------------------------------------------------------------------------------------------------------------");
+    printf("\nThank you for joining with smart patient management system");
+    printf("----------------------------------------------------------------------------------------------------------------------");
+    break;
+default:
+    printf("INVALID CHOICE");
+    break;
 }
+
+} while(choice!=8);
+return 0;
+}
+
+
+
+
+
+
 void printSpecialistData(int ids[4][4],char specialist[4][20],float baseFee[],float consultantTime[],int patientCap[]){
 printf("Doctor Speecialist Data\n");
 printf("------------------------------------------------------------------------------------------------------------------------");
@@ -188,20 +236,20 @@ printf("\n----------------------------------------------------------------------
 void bedTracker(int bedOccupancy[4][20]){
 for (int i=0;i<4;i++){
 
-for(int j=0;j<=20;j++){
+for(int j=0;j<20;j++){
     bedOccupancy[i][j]=0;
 
 }
 }
 bedOccupancy[3][1]=1;
 bedOccupancy[2][2]=1;
-bedOccupancy[1][25]=1;
+bedOccupancy[1][5]=1;
 bedOccupancy[2][5]=1;
 printf("--------------------Bed Status--------------------------------");
 for (int i=0;i<4;i++){
     printf("\nWard number %d",i+1);
 
-for(int j=0;j<=20;j++){
+for(int j=0;j<20;j++){
 if(bedOccupancy[i][j]==1){
     printf("\n%d= Bed Occupied",j);}
 else{
@@ -284,6 +332,7 @@ else{
 
 }
 while(choice!=0&&choice!=1);
+
 
 }
 
@@ -420,55 +469,135 @@ printf("\nPatient ID                                          :PAT-%04d",1001+i)
 //Patient name
 printf("\nPatient Name                                        :%s",name[i]);
 //patient age
-if(age<5||age>65)
-printf("\nAge                                                 :%d Years(15%Subsidy Eligigible)",age[i]);
+if(age[i]<5||age[i]>65)
+        printf("\nAge                                                 :%d Years(15%Subsidy Eligigible)",age[i]);
 else
-printf("\nAge                                                 :%d Years",age[i]);
+        printf("\nAge                                                 :%d Years",age[i]);
 //secialty
 printf("\nSpecialty                                           :%s",specialid[i]>=1&&specialid[i]<=4?specialist[specialid[i]-1]:"Unkown");
 //ward
-if (wards[i]>=1 && ward[i] <=4)
-printf("\nAssigned Ward                                       :%s",wards[ward[i]-1]);
+if (ward[i]>=1 && ward[i] <=4)
+        printf("\nAssigned Ward                                       :%s",wards[ward[i]-1]);
 else
-printf("\nAssigned Ward                                       :Outpatient/OPD");
+        printf("\nAssigned Ward                                       :Outpatient/OPD");
 //patient level
 if(patientlevel[i]==3)
-printf("\nUrgency Level                                        :Level 3(Critical)");
+        printf("\nUrgency Level                                        :Level 3(Critical)");
 else if(patientlevel[i]==2)
-printf("\nUrgency Level                                        :Level 2(Urgent)");
+        printf("\nUrgency Level                                        :Level 2(Urgent)");
 else
-printf("\nUrgency Level                                        :Level 1(Normal)");
-printf("\n------------------------------------------------------------------------------------------------------------");
+        printf("\nUrgency Level                                        :Level 1(Normal)");
+        printf("\n------------------------------------------------------------------------------------------------------------");
 //Base consultant Fee
-printf("\nBase Consultation Fee                                :LKR %.2f",baseFee[specialid[i]-1]);
+        printf("\nBase Consultation Fee                                :LKR %.2f",baseFee[specialid[i]-1]);
 //Surcharge
-if(patientlevel[i]==1)
-printf("\nEmergency Surcharge                                  :LKR %.2f",surchargeFee[i]);
-else if(patientlevel[i]==2)
-printf("\nEmergency Surcharge                                  :LKR %.2f",surchargeFee[i]);
-else
-printf("\nEmergency Surcharge                                  :LKR %.2f",surchargeFee[i]);
+printf("\nEmergency Surcharge                                  :LKR %.2f",
+       surchargeFee[i]);
 //ward cost
 if(days[i]>0)
-printf("\nWard Stay Cost(%d)                                   :LKR %.2f",
-         days[i],wardcost[i]);
+        printf("\nWard Stay Cost(%d)                                   :LKR %.2f",
+               days[i],wardcost[i]);
 else
-printf("\nWard Stay Cost                                       :LKR %.2f",wardcost[i]);
+        printf("\nWard Stay Cost                                       :LKR %.2f",wardcost[i]);
 printf("\n------------------------------------------------------------------------------------------------------------------");
 //gross Total Bill
-printf("\nGross Total Bill                                     :LKR %.2f",grossTotalBill[i]);
+        printf("\nGross Total Bill                                     :LKR %.2f",grossTotalBill[i]);
 //age subsity discount
 if(age[i] <=5||age[i] >=65)
-printf("\nAge Subsity Discount                                 :LKR -%.2f(%%15)",discount[i]);
+        printf("\nAge Subsity Discount                                 :LKR -%.2f(%%15)",discount[i]);
 else
-printf("\nAge Subsity Discount                                 :LKR %.2f",discount[i]);
-printf("\n-------------------------------------------------------------------------------------------------------------------");
+        printf("\nAge Subsity Discount                                 :LKR %.2f",discount[i]);
+        printf("\n-------------------------------------------------------------------------------------------------------------------");
 //final Payable Amount
-printf("\nFinal Payable Amount                                 :LKR %.2f",finalAmount[i]);
+        printf("\nFinal Payable Amount                                 :LKR %.2f",finalAmount[i]);
 //Estimated Waiting Time
 printf("\nEstimated Waiting Time                               :LKR %.2f mins",waitingtime[i]);
 printf("\n____________________________________________________________________________________________________________________");
 printf("\n_____________________________________________________________________________________________________________________");}
+
+void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[]){
+    //initialized the variables
+int level1=0;
+int level2=0;
+int level3=0;
+float totalRevenue=0.00;
+float totaldiscount=0.00;
+int ocuupiedBeds[WARDS]={0,0,0,0};
+int highestpatient=0;
+//total patient registerd and  categorized by Urgency Level Report
+for(int i=0;i<totalPatients;i++){
+    if(patientlevel[i]==1)
+        level1++;
+    else if(patientlevel[i]==2){
+        level2++;}
+    else{
+        level3++;}
+
+//total revenue and total discount
+totalRevenue+=finalAmount[i];
+//total discount
+totaldiscount+=discount[i];
+if(ward[i]>=1&&ward[i]<=4)
+    ocuupiedBeds[ward[i]-1]++;
+//highest patient
+if(finalAmount[i]>finalAmount[highestpatient])
+    highestpatient=i;
+}
+printf("\n *****************SMART HOSPITAL SUMMARY REPORTS**********************************************");
+printf("\n----------------------------------------------------------------------------------------------");
+printf("\n REPORT OF TOTAL PATIENTS REGISTERD AND CATEGORIZED BY URGENCY LEVEL");
+printf("\n-----------------------------------------------------------------------------------------------");
+printf("\nTotal Patients= %d",totalPatients);
+printf("\nTotal Number of patients in Normal=%d",level1);
+printf("\nTotal Number of patients in Urgent=%d",level2);
+printf("\nTotal Number of patients in Critical=%d",level3);
+//Total Revenue and Total Revenue
+printf("\n------------------------------------------------------------------------------------------------");
+printf("\nTOTAL REVENUE EARNED AND TOTAL DISCOUNTS GRANTED");
+printf("\n-------------------------------------------------------------------------------------------------");
+printf("\nTotal Revenue Earned= %.2f",totalRevenue);
+printf("\n Total discount granted= %.2f",totaldiscount);
+//Bed occupancy Percantage
+printf("\n-------------------------------------------------------------------------------------------------");
+printf("\nBED OCCUPANCY PERCANTAGE PER WARD");
+printf("\n-------------------------------------------------------------------------------------------------");
+for(int i=0;i<WARDS;i++){
+float occupancyPercentage;
+if(totalBed[i]>0){
+    occupancyPercentage =((float)ocuupiedBeds[i] / totalBed[i]) * 100;}
+else
+    {occupancyPercentage=0.00;}
+printf("\nWard : %d",i+1);
+printf("\nTotal Beds %d",totalBed[i]);
+printf("\nOccupied Beds %d",ocuupiedBeds[i]);
+printf("\nOccupancy Percantage %.2f",occupancyPercentage);}
+//name and total Bill of highest Person
+printf("\n-------------------------------------------------------------------------------------------------");
+printf("\nNAME AND TOTAL BILL OF THE HIGHEST-PAYING PATIENT");
+printf("\n--------------------------------------------------------------------------------------------------");
+if(totalPatients>0){
+    printf("\nHighest amount Paid patient is %s",name[highestpatient]);
+    printf("\nPaid amount is %.2f",finalAmount[highestpatient]);}
+else{
+    printf("Patients are not registered");
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
