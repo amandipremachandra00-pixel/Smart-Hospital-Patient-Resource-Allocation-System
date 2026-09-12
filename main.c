@@ -7,14 +7,17 @@
 #define MAX_PATIENTS 100
 void printSpecialistData(int ids[4][4],char specialist[4][20],float baseFee[],float consultantTime[],int patientCap[]);
 void printWardData(int wids[4][20],char wards[4][25],float bedRate[],int totalBed[]);
-void bedTracker( int bedOccupancy[4][20]);
+void bedTracker( int bedOccupancy[WARDS][20],int totalBed[]);
 void patientregister(int i,
                      char name[][50],
                      int age[],
                      int patientlevel[],
                      int specialid[],
                      int ward[],
-                     int days[]);
+                     int days[],
+                     int bedNumber[],
+                     int bedOccupancy[WARDS][20],
+                     int totalBed[]);
 float waitingtimecalculate(int specialid[4],int specialtyQueue[4],int i);
 float emergencySurcharge(int patientlevel[MAX_PATIENTS],int  specialid[SPECIALIST],float baseFee[SPECIALIST],int i);
 float wardstayCost(float bedRate[WARDS],int days[MAX_PATIENTS],int ward[MAX_PATIENTS],int i);
@@ -22,8 +25,8 @@ float grossBillTotal(int specialid[MAX_PATIENTS],float baseFee[SPECIALIST],float
 float calculateDiscount(int age[MAX_PATIENTS],float grossTotalBill[MAX_PATIENTS],int i);
 float finalAmountBill(float grossTotalBill[MAX_PATIENTS],float discount[MAX_PATIENTS],int i);
 void bubbleSortPatients(int totalPatients,char name[][50],int age[],int patientlevel[],int ward[],int specialid[],int days[],float surchargeFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],float waitingtime[]);
-void printBill(char name[][50],int age[],int patientlevel[],int ward[],int specialid[],int days[],float waitingtime[],float surchargeFee[],float baseFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],int i);
-void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[]);
+void printBill(char name[][50],int age[],int patientlevel[],int ward[],int bedNumber[],int specialid[],int days[],float waitingtime[],float surchargeFee[],float baseFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],int i);
+void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[],int bedOccupancy[WARDS][20]);
 
 int main()
 
@@ -65,13 +68,14 @@ int totalBed[WARDS]={20,
                     10,
                     05};
 int i=0;
-int bedOccupancy[4][20];
+int bedOccupancy[WARDS][20]={0};
 char name[MAX_PATIENTS][50];
 int age[MAX_PATIENTS];
 int patientlevel[MAX_PATIENTS];
 int specialid[MAX_PATIENTS];
 int ward[MAX_PATIENTS];
 int days[MAX_PATIENTS];
+int bedNumber[MAX_PATIENTS];
 float waitingtime[MAX_PATIENTS];
 float surchargeFee[MAX_PATIENTS];
 float wardcost[MAX_PATIENTS];
@@ -104,7 +108,7 @@ do{
     printWardData(wids,wards,bedRate,totalBed);
     break;
     case 3:printf("\n");
-    bedTracker(bedOccupancy);
+    bedTracker(bedOccupancy,totalBed);
     break;
     case 4:printf("\n");
     printf("Enter the total Patients for register");
@@ -118,7 +122,7 @@ do{
         }
     for(int i=0;i<totalpatients;i++){
     printf("patient Registration");
-    patientregister(i, name, age, patientlevel, specialid, ward, days);
+    patientregister(i, name, age, patientlevel, specialid, ward, days,bedNumber,bedOccupancy,totalBed);
     waitingtime[i] =
     waitingtimecalculate(specialid, specialtyQueue, i);
     printf("\n Patient Estimated Waiting Time: %.2f minutes\n", waitingtime[i]);
@@ -167,6 +171,7 @@ printBill(name,
           age,
           patientlevel,
           ward,
+          bedNumber,
           specialid,
           days,
           waitingtime,
@@ -180,7 +185,7 @@ printBill(name,
 }
 break;
 case 7:
-    summaryReports(totalpatients,name,patientlevel,finalAmount,ward,discount,totalBed);
+    summaryReports(totalpatients,name,patientlevel,finalAmount,ward,discount,totalBed,bedOccupancy);
     break;
 case 8:
     printf("\n-------------------------------------------------------------------------------------------------------------------");
@@ -233,39 +238,54 @@ for(int j=0;j<4;j++){
 printf("\n-------------------------------------------------------------------------------------------------------------------");
 }
 }
-void bedTracker(int bedOccupancy[4][20]){
-for (int i=0;i<4;i++){
+void bedTracker(int bedOccupancy[WARDS][20],int totalBed[]){
+printf("\n-----------------------------------------------------------------------------------------------------------------------");
+printf("\nHospital Bed Status Tracker");
+printf("\n-----------------------------------------------------------------------------------------------------------------------");
 
-for(int j=0;j<20;j++){
-    bedOccupancy[i][j]=0;
+for (int i=0;i<WARDS;i++){
+  printf("\n                          Ward %d",i+1);
+  printf("\n-----------------------------------------------------------------------------------------------------");
+
+for(int j=0;j<totalBed[i];j++){
+    printf("\nBed%02d",j+1);
+    if(bedOccupancy[i][j]==0)
+      printf("\n[0]Avaiable");
+    else
+        printf("\n[1]Ocuupied");
 
 }
-}
-bedOccupancy[3][1]=1;
-bedOccupancy[2][2]=1;
-bedOccupancy[1][5]=1;
-bedOccupancy[2][5]=1;
-printf("--------------------Bed Status--------------------------------");
-for (int i=0;i<4;i++){
-    printf("\nWard number %d",i+1);
+int occupied=0;
+for(int j=0;j<totalBed[i];j++){
+if(bedOccupancy[i][j]==1)
+occupied++;
 
-for(int j=0;j<20;j++){
-if(bedOccupancy[i][j]==1){
-    printf("\n%d= Bed Occupied",j);}
-else{
-    printf("\n%d= Bed aviable",j);
 }
+float percentage=((float)occupied/totalBed[i])*100;
+printf("\n--------------------------------------------------------\n");
+        printf("Occupied Beds: %d / %d\n", occupied, totalBed[i]);
+        printf("Available Beds: %d / %d\n",
+               totalBed[i] - occupied, totalBed[i]);
+
+        printf("Occupancy: %.2f%%\n", percentage);
 }
+printf("\n------------------------------------------------------------------------------------------------");
+printf("\n 0-Avaialble 1=Occupied");
 }
-}
+
+
 void patientregister(int i,
                      char name[][50],
                      int age[],
                      int patientlevel[],
                      int specialid[],
                      int ward[],
-                     int days[]){
+                     int days[],
+                     int bedNumber[],
+                     int bedOcuupancy[WARDS][20],
+                     int totalBed[]){
 int choice;
+int validward;
 
 
 
@@ -293,19 +313,18 @@ if(patientlevel[i]<1||patientlevel[i]>3){
     printf("Invalid ");
 }
 }
-while(patientlevel[i]<1||patientlevel[i]>4);
+while(patientlevel[i]<1||patientlevel[i]>3);
 printf("\n-------------------------------------------------------------------------------------------------------------------");
 printf("\nSpecialty Selection");
 printf("\n----------------------------------------------------------------------------------------------------------------------");
 printf("\nEnter the Specialty ID");
-do{
 printf("\n1=Genaral Practice OPD\n2=Paediatrics\n3=Cardiology\n4=Neurology");
 scanf("%10d",&specialid[i]);
 if(specialid[i]<1 || specialid[i]>4){
     printf("Invalid Speciality ID");
 }
-}
-while(specialid[i]<1||specialid[i]>4);
+
+
 printf("\n-----------------------------------------------------------------------------------------------------------------------");
 printf("\nWard Admission Details");
 printf("\n------------------------------------------------------------------------------------------------------------------------");
@@ -313,28 +332,82 @@ do{
 printf("\nIs Patient Admitt to Ward");
 printf("\n If Yes Enter 1\n If No Enter 0");
 scanf("%d",&choice);
+
 if (choice==1){
+    do{
    printf("Enter the Ward ID(1-4)");
    printf("\n1=Genaral Ward\n2=Paediatric Ward\n3=Surgical Ward\n4=ICU(Intensive Care Unit)");
    scanf("%d",&ward[i]);
+   if(ward[i]<1||ward[i]>WARDS){
+    printf("Invalid Ward Id");}
+    }while(ward[i]<1||ward[i]>WARDS);
+    do{
+
    printf("Enter the days Admitted");
    scanf("%d",&days[i]);
-
+   if (days[i]<=0){
+    printf("Days must be grater than 0");
+   }
+    }while(days[i]<=0);
 }
+
+
 else if(choice==0){
         ward[i]=0;
         days[i]=0;
-    printf("Days Admitted=0 (Outpatient/OPD status)");
-}
-else{
-    printf("Invalid choice");
-}
+        bedNumber[i]=0;
+    printf("Days Admitted=0 (Outpatient/OPD status)");}
+
+
+
 
 }
 while(choice!=0&&choice!=1);
+validward = 0;
+
+        for(int j = 0; j < totalBed[ward[i] - 1]; j++)
+        {
+            if(bedOcuupancy[ward[i] - 1][j] == 0)
+            {
+                bedOcuupancy[ward[i] - 1][j] = 1;
+
+                bedNumber[i] = j + 1;
+
+                validward = 1;
+
+                printf("\n------------------------------------------------------------");
+                printf("\nBED ALLOCATION SUCCESSFULLY DONE");
+                printf("\n------------------------------------------------------------");
+                printf("\nWard ID       : %d", ward[i]);
+                printf("\nBed Number    : %02d", bedNumber[i]);
+                printf("\nBed Status    : [1] Occupied");
+                printf("\nDays Admitted : %d", days[i]);
+                printf("\n------------------------------------------------------------\n");
+
+                break;
+            }
+        }
 
 
-}
+
+
+        if(validward == 0)
+        {
+            printf("\n------------------------------------------------------------");
+            printf("\n NO BED AVAILABLE");
+            printf("\n------------------------------------------------------------");
+            printf("\nSelected Ward is currently FULLy.");
+            printf("\nPlease select another ward\n");
+
+            ward[i] = 0;
+            days[i] = 0;
+            bedNumber[i] = 0;
+        }
+    }
+
+
+
+
 
 
 
@@ -452,7 +525,7 @@ void bubbleSortPatients(int totalPatients,char name[][50],int age[],int patientl
     }
 }
 //print the admission and bill
-void printBill(char name[][50],int age[],int patientlevel[],int ward[],int specialid[],int days[],float waitingtime[],float surchargeFee[],float baseFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],int i) {
+void printBill(char name[][50],int age[],int patientlevel[],int ward[],int bedNumber[],int specialid[],int days[],float waitingtime[],float surchargeFee[],float baseFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],int i) {
 char *specialist[]={"Genaral practise OPD",
                     "Peadrictics",
                     "Cardiology",
@@ -477,7 +550,7 @@ else
 printf("\nSpecialty                                           :%s",specialid[i]>=1&&specialid[i]<=4?specialist[specialid[i]-1]:"Unkown");
 //ward
 if (ward[i]>=1 && ward[i] <=4)
-        printf("\nAssigned Ward                                       :%s",wards[ward[i]-1]);
+        printf("\nAssigned Ward                                       :%s(Bed%02d)",wards[ward[i]-1],bedNumber[i]);
 else
         printf("\nAssigned Ward                                       :Outpatient/OPD");
 //patient level
@@ -515,14 +588,13 @@ printf("\nEstimated Waiting Time                               :LKR %.2f mins",w
 printf("\n____________________________________________________________________________________________________________________");
 printf("\n_____________________________________________________________________________________________________________________");}
 
-void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[]){
+void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[],int bedOccupancy[WARDS][20]){
     //initialized the variables
 int level1=0;
 int level2=0;
 int level3=0;
 float totalRevenue=0.00;
 float totaldiscount=0.00;
-int ocuupiedBeds[WARDS]={0,0,0,0};
 int highestpatient=0;
 //total patient registerd and  categorized by Urgency Level Report
 for(int i=0;i<totalPatients;i++){
@@ -537,8 +609,34 @@ for(int i=0;i<totalPatients;i++){
 totalRevenue+=finalAmount[i];
 //total discount
 totaldiscount+=discount[i];
-if(ward[i]>=1&&ward[i]<=4)
-    ocuupiedBeds[ward[i]-1]++;
+int ocuupied=0;
+for(int i=0;i<WARDS;i++)
+{
+    int ocuupied=0;
+    float occupancyPercentage;
+
+    for(int j=0;j<totalBed[i];j++)
+    {
+        if(bedOccupancy[i][j]==1)
+        {
+            ocuupied++;
+        }
+    }
+
+    if(totalBed[i]>0)
+    {
+        occupancyPercentage=((float)ocuupied/totalBed[i])*100;
+    }
+    else
+    {
+        occupancyPercentage=0.00;
+    }
+
+    printf("\nWard : %d",i+1);
+    printf("\nTotal Beds %d",totalBed[i]);
+    printf("\nOccupied Beds %d",ocuupied);
+    printf("\nOccupancy Percentage %.2f%%",occupancyPercentage);
+}
 //highest patient
 if(finalAmount[i]>finalAmount[highestpatient])
     highestpatient=i;
@@ -561,15 +659,16 @@ printf("\n Total discount granted= %.2f",totaldiscount);
 printf("\n-------------------------------------------------------------------------------------------------");
 printf("\nBED OCCUPANCY PERCANTAGE PER WARD");
 printf("\n-------------------------------------------------------------------------------------------------");
+int ocuupied=0;
 for(int i=0;i<WARDS;i++){
 float occupancyPercentage;
 if(totalBed[i]>0){
-    occupancyPercentage =((float)ocuupiedBeds[i] / totalBed[i]) * 100;}
+    occupancyPercentage =((float)ocuupied/ totalBed[i]) * 100;}
 else
     {occupancyPercentage=0.00;}
 printf("\nWard : %d",i+1);
 printf("\nTotal Beds %d",totalBed[i]);
-printf("\nOccupied Beds %d",ocuupiedBeds[i]);
+printf("\nOccupied Beds %d",ocuupied);
 printf("\nOccupancy Percantage %.2f",occupancyPercentage);}
 //name and total Bill of highest Person
 printf("\n-------------------------------------------------------------------------------------------------");
