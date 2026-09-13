@@ -543,7 +543,7 @@ printf("\nPatient ID                                          :PAT-%04d",1001+i)
 printf("\nPatient Name                                        :%s",name[i]);
 //patient age
 if(age[i]<5||age[i]>65)
-        printf("\nAge                                                 :%d Years(15%Subsidy Eligigible)",age[i]);
+        printf("\nAge                                                 :%d Years(15%%Subsidy Eligigible)",age[i]);
 else
         printf("\nAge                                                 :%d Years",age[i]);
 //secialty
