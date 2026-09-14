@@ -113,7 +113,7 @@ do{
     case 4:printf("\n");
     printf("Enter the total Patients for register");
     scanf("%d",&totalpatients);
-    getchar();
+
 
       if(totalpatients <= 0 || totalpatients > MAX_PATIENTS){
         printf("\nInvalid number Please check\n");
@@ -141,7 +141,7 @@ do{
     break;
     case 5:
         if(totalpatients==0){
-            printf("PAtients not registerd");
+            printf("Patients not registerd");
 
         break;}
         printf("\n");
@@ -226,9 +226,9 @@ void printWardData(int wids[4][20],char wards[4][25],float bedRate[],int totalBe
 printf("\n");
 printf("\n");
 printf("\nHospital Wards Data");
-printf("\n---------------------------------------------------------------------------------------------------------------------");
+printf("\n-------------------------------------------------------------------------------------------------------------------");
 printf("\n%-15s%-35s%-25s%-15s","Ward Id","Ward Name","Daily Bed Rate(LKR/Day)","Total Bed Capacity" );
-printf("\n----------------------------------------------------------------------------------------------------------------------");
+printf("\n-------------------------------------------------------------------------------------------------------------------");
 for(int j=0;j<4;j++){
     printf("\n%-15d%-35s%-25.2f%-15d\n",
            j+1,
@@ -239,13 +239,13 @@ printf("\n----------------------------------------------------------------------
 }
 }
 void bedTracker(int bedOccupancy[WARDS][20],int totalBed[]){
-printf("\n-----------------------------------------------------------------------------------------------------------------------");
+printf("\n------------------------------------------------------------------------------------------------------------------------------------");
 printf("\nHospital Bed Status Tracker");
-printf("\n-----------------------------------------------------------------------------------------------------------------------");
+printf("\n------------------------------------------------------------------------------------------------------------------------");
 
 for (int i=0;i<WARDS;i++){
   printf("\n                          Ward %d",i+1);
-  printf("\n-----------------------------------------------------------------------------------------------------");
+  printf("\n------------------------------------------------------------------------------------------------------------------------");
 
 for(int j=0;j<totalBed[i];j++){
     printf("\nBed%02d",j+1);
@@ -262,15 +262,15 @@ occupied++;
 
 }
 float percentage=((float)occupied/totalBed[i])*100;
-printf("\n--------------------------------------------------------\n");
-        printf("Occupied Beds: %d / %d\n", occupied, totalBed[i]);
-        printf("Available Beds: %d / %d\n",
+printf("\n---------------------------------------------------------------------------------------------------------------------\n");
+        printf("Ocupied beds: %d / %d\n", occupied, totalBed[i]);
+        printf("Available beds: %d / %d\n",
                totalBed[i] - occupied, totalBed[i]);
 
         printf("Occupancy: %.2f%%\n", percentage);
 }
-printf("\n------------------------------------------------------------------------------------------------");
-printf("\n 0-Avaialble 1=Occupied");
+printf("\n----------------------------------------------------------------------------------------------------------------------");
+printf("\n 0=Avaialble 1=Occupied");
 }
 
 
@@ -294,6 +294,7 @@ printf("\nPatient Details:");
 printf("\n-----------------------------------------------------------------------------------------------------------------");
 
 printf("\nEnter Patient Name ");
+getchar();s
 
 fgets(name[i],sizeof(name[i]),stdin);
 name[i][strcspn(name[i],"\n")]='\0';
