@@ -27,6 +27,8 @@ float finalAmountBill(float grossTotalBill[MAX_PATIENTS],float discount[MAX_PATI
 void bubbleSortPatients(int totalPatients,char name[][50],int age[],int patientlevel[],int ward[],int specialid[],int days[],float surchargeFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],float waitingtime[]);
 void printBill(char name[][50],int age[],int patientlevel[],int ward[],int bedNumber[],int specialid[],int days[],float waitingtime[],float surchargeFee[],float baseFee[],float wardcost[],float grossTotalBill[],float discount[],float finalAmount[],int i);
 void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[],int bedOccupancy[WARDS][20]);
+void savebedstatus(int bedOccupancy[WARDS][20],int totalBed[]);
+void loadbedstatus(int bedOccipancy[WARDS][20],int totalBed[]);
 
 int main()
 
@@ -69,6 +71,7 @@ int totalBed[WARDS]={20,
                     05};
 int i=0;
 int bedOccupancy[WARDS][20]={0};
+loadbedstatus(bedOccupancy,totalBed);
 char name[MAX_PATIENTS][50];
 int age[MAX_PATIENTS];
 int patientlevel[MAX_PATIENTS];
@@ -188,6 +191,7 @@ case 7:
     summaryReports(totalpatients,name,patientlevel,finalAmount,ward,discount,totalBed,bedOccupancy);
     break;
 case 8:
+    savebedstatus(bedOccupancy,totalBed);
     printf("\n-------------------------------------------------------------------------------------------------------------------");
     printf("\nThank you for joining with smart patient management system");
     printf("----------------------------------------------------------------------------------------------------------------------");
@@ -250,9 +254,9 @@ for (int i=0;i<WARDS;i++){
 for(int j=0;j<totalBed[i];j++){
     printf("\nBed%02d",j+1);
     if(bedOccupancy[i][j]==0)
-      printf("\n[0]Avaiable");
+      printf("[0]");
     else
-        printf("\n[1]Ocuupied");
+        printf("[1]");
 
 }
 int occupied=0;
@@ -294,7 +298,7 @@ printf("\nPatient Details:");
 printf("\n-----------------------------------------------------------------------------------------------------------------");
 
 printf("\nEnter Patient Name ");
-getchar();s
+getchar();
 
 fgets(name[i],sizeof(name[i]),stdin);
 name[i][strcspn(name[i],"\n")]='\0';
@@ -334,7 +338,11 @@ printf("\nIs Patient Admitt to Ward");
 printf("\n If Yes Enter 1\n If No Enter 0");
 scanf("%d",&choice);
 
-if (choice==1){
+if (choice!=0&& choice!=1){
+        printf("Invalid");}
+}
+while(choice!=0&&choice!=1);
+if(choice==1){
     do{
    printf("Enter the Ward ID(1-4)");
    printf("\n1=Genaral Ward\n2=Paediatric Ward\n3=Surgical Ward\n4=ICU(Intensive Care Unit)");
@@ -350,20 +358,7 @@ if (choice==1){
     printf("Days must be grater than 0");
    }
     }while(days[i]<=0);
-}
 
-
-else if(choice==0){
-        ward[i]=0;
-        days[i]=0;
-        bedNumber[i]=0;
-    printf("Days Admitted=0 (Outpatient/OPD status)");}
-
-
-
-
-}
-while(choice!=0&&choice!=1);
 validward = 0;
 
         for(int j = 0; j < totalBed[ward[i] - 1]; j++)
@@ -388,6 +383,7 @@ validward = 0;
                 break;
             }
         }
+}
 
 
 
@@ -404,7 +400,15 @@ validward = 0;
             days[i] = 0;
             bedNumber[i] = 0;
         }
-    }
+
+    else if(choice==0){
+        ward[i]=0;
+        days[i]=0;
+        bedNumber[i]=0;
+    printf("Days Admitted=0 (Outpatient/OPD status)");}
+}
+
+
 
 
 
@@ -666,7 +670,8 @@ float occupancyPercentage;
 if(totalBed[i]>0){
     occupancyPercentage =((float)ocuupied/ totalBed[i]) * 100;}
 else
-    {occupancyPercentage=0.00;}
+    {occupancyPercentage=0.00;
+    }
 printf("\nWard : %d",i+1);
 printf("\nTotal Beds %d",totalBed[i]);
 printf("\nOccupied Beds %d",ocuupied);
@@ -677,11 +682,50 @@ printf("\nNAME AND TOTAL BILL OF THE HIGHEST-PAYING PATIENT");
 printf("\n--------------------------------------------------------------------------------------------------");
 if(totalPatients>0){
     printf("\nHighest amount Paid patient is %s",name[highestpatient]);
-    printf("\nPaid amount is %.2f",finalAmount[highestpatient]);}
+    printf("\nPaid amount is %.2f",finalAmount[highestpatient]);
+}
 else{
     printf("Patients are not registered");
     }
   }
+
+
+  void loadbedstatus(int bedOccupancy[WARDS][20],int totalBed[]){
+  FILE*file;
+  file=fopen("beds_status.txt","r");
+  if(file==NULL){
+    printf("\nNo file Found");
+    return;
+  }
+  for(int i=0;i<WARDS;i++){
+    for(int j=0;j<totalBed[i];j++){
+        fscanf(file,"%d",&bedOccupancy[i][j]);
+        }
+
+    }
+    fclose(file);
+    printf("Bed status load Succesfully");
+  }
+
+  void savebedstatus(int bedOccupancy[WARDS][20],int totalBed[]){
+  FILE*file;
+  file=fopen("beds_status.txt","w");
+  if(file==NULL){
+    printf("There is an error");
+    return;
+  }
+  for(int i=0;i<WARDS;i++){
+    for(int j=0;j<totalBed[i];j++){
+            fprintf(file,"%d",bedOccupancy[i][j]);
+
+
+    }
+    fprintf(file,"\n");}
+
+  fclose(file);
+  printf("Succesfully saved");
+  }
+
 
 
 
