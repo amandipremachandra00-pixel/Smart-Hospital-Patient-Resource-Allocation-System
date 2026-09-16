@@ -29,6 +29,7 @@ void printBill(char name[][50],int age[],int patientlevel[],int ward[],int bedNu
 void summaryReports(int totalPatients,char name[][50],int patientlevel[],float finalAmount[],int ward[],float discount[],int totalBed[],int bedOccupancy[WARDS][20]);
 void savebedstatus(int bedOccupancy[WARDS][20],int totalBed[]);
 void loadbedstatus(int bedOccipancy[WARDS][20],int totalBed[]);
+void savepatientRecords(char name[],int age,int patientlevel,int specialid,int ward,int bedNumber,int days,float waitingtime,float surchargeFee,float wardcost,float grossTotalBill,float discount,float finalAmount);
 
 int main()
 
@@ -139,6 +140,8 @@ do{
     discount[i]=calculateDiscount(age,grossTotalBill,i);
     printf("Discount:%.2frupees\n",discount[i]);
     finalAmount[i]=finalAmountBill(grossTotalBill,discount,i);
+    savepatientRecords(name[i],age[i],patientlevel[i],specialid[i],ward[i],bedNumber[i],days[i], waitingtime[i],surchargeFee[i],wardcost[i],grossTotalBill[i], discount[i],finalAmount[i]);
+    printf("Patient detail Recorded Succesfully");
     printf("Patients Succesfully Registerd");}
     bubbleSortPatients(totalpatients,name,age, patientlevel,ward,specialid,days, surchargeFee ,wardcost,grossTotalBill,discount, finalAmount,waitingtime);
     break;
@@ -256,7 +259,7 @@ for(int j=0;j<totalBed[i];j++){
     if(bedOccupancy[i][j]==0)
       printf("[0]");
     else
-        printf("[1]");
+        printf("[1]ss");
 
 }
 int occupied=0;
@@ -724,6 +727,43 @@ else{
 
   fclose(file);
   printf("Succesfully saved");
+  }
+
+  void savepatientRecords(char name[],int age,int patientlevel,int specialid,int ward,int bedNumber,int days,float waitingtime,float surchargeFee,float wardcost,float grossTotalBill,float discount,float finalAmount){
+  FILE *file;
+  file=fopen("patient_records.txt","a");
+  if(file==NULL)
+    {
+        printf("error in records\n");
+        return;
+    }
+    fprintf(file,"******************************************************************************************************\n");
+    fprintf(file,"                                            PATIENT RECORDS\n");
+    fprintf(file,"******************************************************************************************************\n");
+    fprintf(file,"Patient name                              :%s\n",name);
+    fprintf(file,"Age                                       :%d\n",age);
+    fprintf(file,"Specialty Id                              :%d\n",specialid);
+    fprintf(file,"Urgency Level                             :%d\n",patientlevel);
+    if(ward >=1&&ward<=WARDS){
+        fprintf(file,"Ward ID                                   :%d\n",ward);
+        fprintf(file,"No of days admitted                       :%d\n",days);
+        fprintf(file,"Bed number                                :%d\n",bedNumber);
+
+    }
+    else{
+        fprintf(file,"Ward                                      :Outpatient(OPD)");
+    }
+    fprintf(file,"Waiting Time                              :%.2f\n",waitingtime);
+    fprintf(file,"Ward Cost                                 :%.2f\n",wardcost);
+    fprintf(file,"Emergency Surcharge                       :%.2f\n",surchargeFee);
+    fprintf(file,"Gross Total Bill                          :%.2f\n",grossTotalBill);
+    fprintf(file,"Discount                                  :%.2f\n",discount);
+    fprintf(file,"Final Amount                              :%.2f\n",finalAmount);
+    fprintf(file,"******************************************************************************************************\n");
+    fclose(file);
+
+
+
   }
 
 
