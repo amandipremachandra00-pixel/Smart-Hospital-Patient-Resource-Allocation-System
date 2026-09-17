@@ -259,7 +259,7 @@ for(int j=0;j<totalBed[i];j++){
     if(bedOccupancy[i][j]==0)
       printf("[0]");
     else
-        printf("[1]ss");
+        printf("[1]");
 
 }
 int occupied=0;
@@ -617,7 +617,7 @@ for(int i=0;i<totalPatients;i++){
 totalRevenue+=finalAmount[i];
 //total discount
 totaldiscount+=discount[i];
-int ocuupied=0;
+printf("Bed Occupancy Percantage");
 for(int i=0;i<WARDS;i++)
 {
     int ocuupied=0;
